@@ -1,0 +1,12 @@
+{
+  "name": "DocViewer",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "chokidar": "^1.0.5",
+    "express": "^4.13.1",
+    "multer": "^0.1.8",
+  }
+}

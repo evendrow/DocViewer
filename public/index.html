@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PDF Upload</title>
+
+	<style>
+
+body {
+	text-align: center;
+	font-family: Trebuchet MS;
+}
+
+form {
+	position: relative;
+	margin-top: 100px;
+	display: inline-block;
+	width: 300px;
+	background-color: #bbb;
+	text-align: center;
+	padding: 30px;
+	font-size: 30px;
+	border-radius: 10px;
+}
+
+#file {
+    display: none;
+}
+
+.uploadLabel {
+	margin-top: 10px;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 20px;
+    background-color: #ddd;
+    border-radius: 10px;
+}
+
+.uploadLabel:active {
+    background-color: #ccc;
+}
+
+#submit {
+	font-size: 20px;
+	padding: 6px 12px;
+	background-color: #ddd;
+    border-radius: 10px;
+    border: none;
+}
+
+	</style>
+</head>
+<body>
+
+<form action="/upload" method="POST" enctype="multipart/form-data" id="form">
+	Upload a file:
+	<label for="file" class="uploadLabel">
+    	Choose any PDF
+	</label>
+	<!-- accept="application/pdf" -->
+	<input type="file" name="file" id="file"  onchange="upload(this.files)">
+	<input type="submit" value="Submit" id="submit">
+</form>
+
+<script>
+
+function upload(files) {
+	if (files.length == 1) {
+		console.log('ready to upload');
+		// document.getElementById("form").submit.submit();
+		// document.getElementById("submit").prop('disabled', false);
+	}
+}
+
+</script>
+
+</body>
+</html>

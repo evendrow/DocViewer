@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PDF Thumbnail Viewer</title>
+	<script type="text/javascript" src="viewer/pdf.js"></script>
+	<script type="text/javascript" src="lib/async.min.js"></script>
+	<style>
+
+body {
+	text-align: center;
+	font-family: Trebuchet MS;
+}
+
+#thumbs {
+	height: 200px;
+	/*background-color: #bbb;*/
+	padding: 10px;
+}
+#thumbs img {
+	border: 1px solid #aaa;
+	margin: 10px 5px;
+	height: 100%;
+}
+
+#viewLink {
+	font-size: 40px;
+	margin-top: 30px;
+	display: none;
+}
+
+	</style>
+</head>
+<body>
+
+<div id="thumbs"></div>
+<a href="#" id="viewLink">View this document</a>
+<script>
+
+function thumbnail(pdfLink, imgId) {
+
+	PDFJS.workerSrc = "viewer/pdf.worker.js";
+	PDFJS.getDocument('pdf/' + pdfLink).then(function (pdf) {
+
+		var mapArray = [1, 2, 3];
+
+		if (pdf.numPages < 3) {
+			mapArray = mapArray.slice(0, pdf.numPages);
+			console.log('new map array (short PDF): ' + mapArray);
+		}
+
+	    async.map(mapArray, function(num, callback) {
+
+	    	pdf.getPage(num).then(function(page) {
+	    		getThumbForPage(page, function(img) {
+	    			// console.log('page ' + num + ': ' + img);
+	    			callback(null, img);
+	    		});
+	    	});
+
+	    }, function (err, result) {
+	    	result.forEach(function(imgSrc) {
+
+	    		var img = document.createElement('img');
+	    		img.src = imgSrc;
+
+	    		document.getElementById('thumbs').appendChild(img);
+	    		document.getElementById('viewLink').href='viewer/#../pdf/' + pdfLink;
+	    		document.getElementById('viewLink').style.display = 'block';
+	    	});
+	    });
+	});
+}
+
+function getThumbForPage(page, callback) {
+	var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+	//gets page at half scale (1/4 size)
+	var viewport = page.getViewport(0.5);
+    
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    var renderContext = {
+          canvasContext: ctx,
+          viewport: viewport
+    };
+
+    page.render(renderContext).then(function(){
+        //set to draw behind current content
+        ctx.globalCompositeOperation = "destination-over";
+
+        //set background color
+        ctx.fillStyle = "#ffffff";
+
+        //draw background / rect on entire canvas
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        var img = canvas.toDataURL();
+
+        // console.log('img for ' + page + ': ' + img);
+        callback(img);
+        // document.getElementById(imgId).src = img;
+        // $("#"+elementID).html('<img src="'+img+'"/>');
+    });
+}
+
+window.onload = function() {
+
+	var pdfLink = window.location.search;
+
+	if (pdfLink && pdfLink.length >= 1+"pdf=a.pdf".length && pdfLink.indexOf('=') >- 1) {
+		pdfLink = pdfLink.substr(1).split('=')[1];
+		thumbnail(pdfLink, 'thumb');
+	}
+	
+
+}
+
+</script>
+
+</body>
+</html>

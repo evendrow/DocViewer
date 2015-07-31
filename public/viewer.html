@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PDF Upload</title>
+	<style>
+
+html, body {
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+}
+
+iframe {
+	margin: 0px;
+	padding: 0px;
+}
+
+	</style>
+
+</head>
+<body>
+
+<iframe id="viewFrame" width="100%" height="100%" frameborder="0" allowfullscreen webkitallowfullscreen></iframe>
+
+<script>
+
+window.onload = function() {
+
+	var args = {};
+	window.location.search.substr(1).split("&").forEach(function (item) {
+		args[item.split('=')[0]] = item.split("=")[1];
+	});
+
+	if (args['pdf']) {
+		document.getElementById('viewFrame').src = '/viewer/#../pdf/' + args['pdf'];
+
+		if (args['page']) {
+			console.log('adding listener');
+
+			var iframe = document.getElementById('viewFrame');
+			var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+			var observer = new MutationObserver(function(mutations) {
+				console.log(mutations);
+				mutations.forEach(function(mutation) {
+					if (mutation.addedNodes) mutation.addedNodes.forEach(function(node) {
+						console.log(node);
+						if (node.id == 'pageContainer' + args['page']) {
+							console.log("fund page container");
+							innerDoc.getElementById('canvasContainer').scrollTop = innerDoc.getElementById('pageContainer' + args['page']).offsetTop - 6;
+							this.disconnect();
+							// console.log(innerDoc.getElementById('canvasContainer').scrollTop);
+						}
+					});
+				});
+			});
+
+			observer.observe(iframe, {
+				childList: true,
+				attributes: false,
+				characterData: false,
+				subtree: true
+			});
+
+			// // document.addEventListener('pagesloaded', function(e) {
+			// 	console.log('test');
+
+			// 	innerDoc.getElementById('canvasContainer').scrollTop = innerDoc.getElementById('pageContainer' + args['page']).offsetTop - 6;
+
+			// 	console.log(innerDoc.getElementById('canvasContainer').scrollTop);
+			// // });
+			
+		}
+	}
+
+	// document.getElementById('canvasContainer').scrollTop = document.getElementById('pageContainer2').offsetTop - 6
+}
+</script>
+</body>
+</html>
